@@ -9,20 +9,18 @@ def obtener_datos_api(url):
     else:
         return []
 
+# Función para procesar los datos
 def procesar_datos(data):
     data_cleaned = []
     for item in data:
-        edad = item.get("edad_fallecido", None)  # Asegurar el campo correcto
-        try:
-            edad = int(edad) if edad is not None and str(edad).isdigit() else None
-        except ValueError:
-            edad = None  
+        # Obtener el peso y talla
+        peso = item.get("peso", None)
+        talla = item.get("talla", None)
         
-        codigo = item.get("codigo_institucion", "N/A")
-        
+        # Añadir los datos procesados
         data_cleaned.append({
-            "edad_fallecido": edad,
-            "codigo_institucion": codigo
+            "peso": peso,
+            "talla": talla
         })
     
     columns = list(data_cleaned[0].keys()) if data_cleaned else []
@@ -32,11 +30,11 @@ def actualizar_tabla(datos):
     for row in tabla.get_children():
         tabla.delete(row)
     for item in datos:
-        tabla.insert("", "end", values=(item["edad_fallecido"], item["codigo_institucion"]))
+        tabla.insert("", "end", values=(item["peso"], item["talla"]))
 
 def ordenar_por(columna):
     global datos_procesados
-    datos_procesados.sort(key=lambda x: x[columna] if isinstance(x[columna], int) else float('inf'))
+    datos_procesados.sort(key=lambda x: x[columna] if isinstance(x[columna], (int, float)) else float('inf'))
     actualizar_tabla(datos_procesados)
 
 # Configuración de la interfaz
@@ -46,7 +44,7 @@ root.title("Datos API")
 frame = ttk.Frame(root)
 frame.pack(pady=10)
 
-columnas = ["edad_fallecido", "codigo_institucion"]
+columnas = ["peso", "talla"]
 tabla = ttk.Treeview(frame, columns=columnas, show="headings")
 
 for col in columnas:
@@ -55,7 +53,7 @@ for col in columnas:
 
 tabla.pack()
 
-url = "https://www.datos.gov.co/resource/sgf4-8tf8.json"
+url = "https://www.datos.gov.co/resource/ttnc-9dzn.json"
 datos = obtener_datos_api(url)
 datos_procesados, columnas = procesar_datos(datos)
 actualizar_tabla(datos_procesados)

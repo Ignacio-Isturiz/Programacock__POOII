@@ -83,27 +83,14 @@ root = tk.Tk()
 root.title("Ordenamiento de Dataset desde API")
 root.geometry("800x600")
 
-# URL de la API
-api_url = "https://www.datos.gov.co/resource/sgf4-8tf8.json"
+# URL de la nueva API
+api_url = "https://www.datos.gov.co/resource/ttnc-9dzn.json"
 dataset = fetch_data(api_url)
 columns = list(dataset[0].keys()) if dataset else []
 
-# Incluir "edad fallecido" y "codigo institucion" si están presentes en los datos
-# Incluir "edad fallecido" y "codigo institucion" si están en los datos
-if any("edad_fallecido" in item for item in dataset) and "edad_fallecido" not in columns:
-    columns.append("edad_fallecido")
-    
-if any("codigo_institucion" in item for item in dataset) and "codigo_institucion" not in columns:
-    columns.append("codigo_institucion")
+# Especificar solo las columnas "talla" y "peso"
+numeric_columns = ["talla", "peso"]
 
-
-# Filtrar solo columnas con valores numéricos
-
-# Filtrar solo columnas con valores numéricos
-numeric_columns = [
-    col for col in columns 
-    if any(isinstance(item.get(col), (int, float)) for item in dataset)
-]
 # Diccionario de algoritmos de ordenamiento
 sort_algorithms = {
     "Bubble Sort": BubbleSort(),

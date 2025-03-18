@@ -1,3 +1,4 @@
 from interfaz import *
+
 if __name__ == "__main__":
-    pass
+    root.mainloop()  # Inicia la interfaz gráfica
