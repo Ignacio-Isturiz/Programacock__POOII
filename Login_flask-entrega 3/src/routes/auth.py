@@ -4,6 +4,8 @@ from src.models.modelusuario import ModeloUsuario
 from src.utils.email import send_email
 from functools import wraps
 import secrets
+import re
+from datetime import datetime 
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -16,6 +18,18 @@ def login_requerido(f):
             return redirect(url_for('auth.login'))
         return f(*args, **kwargs)
     return decorada
+
+# ✅ Función para validar seguridad de la contraseña
+def validar_contraseña(password):
+    if len(password) < 8:
+        return "La contraseña debe tener al menos 8 caracteres."
+    if not re.search(r"[A-Z]", password):
+        return "La contraseña debe contener al menos una letra mayúscula."
+    if not re.search(r"[a-z]", password):
+        return "La contraseña debe contener al menos una letra minúscula."
+    if not re.search(r"[0-9]", password):
+        return "La contraseña debe contener al menos un número."
+    return None
 
 # Registro
 @auth_bp.route('/registro', methods=['GET', 'POST'])
@@ -30,6 +44,12 @@ def registro():
             flash('Las contraseñas no coinciden.', 'danger')
             return redirect(url_for('auth.registro'))
 
+        # ✅ Validar seguridad
+        error = validar_contraseña(password)
+        if error:
+            flash(error, 'danger')
+            return redirect(url_for('auth.registro'))
+
         usuario_existente = ModeloUsuario.buscar_por_email(email)
         if usuario_existente:
             flash('El email ya está registrado.', 'warning')
@@ -39,12 +59,7 @@ def registro():
         ModeloUsuario.registrar_usuario(username, email, password, token)
 
         activation_url = url_for('auth.activar_cuenta', token=token, _external=True)
-        html = f"""
-        <h3>¡Bienvenido, {username}!</h3>
-        <p>Gracias por registrarte. Haz clic en el siguiente enlace para activar tu cuenta:</p>
-        <a href="{activation_url}">Activar cuenta</a>
-        <p>Si no te registraste, puedes ignorar este correo.</p>
-        """
+        html = render_template('email/activar_cuenta.html', username=username, activation_url=activation_url)
 
         send_email("Activa tu cuenta", [email], html)
         flash('Cuenta creada con éxito. Revisa tu correo para activarla.', 'info')
@@ -111,12 +126,12 @@ def recuperar_contraseña():
             ModeloUsuario.actualizar_token_recuperacion(email, token)
 
             reset_url = url_for('auth.reestablecer_contraseña', token=token, _external=True)
-            html = f"""
-            <h3>Hola, {usuario.username}</h3>
-            <p>Haz clic en el siguiente enlace para restablecer tu contraseña:</p>
-            <a href="{reset_url}">Restablecer contraseña</a>
-            <p>Si no solicitaste esto, puedes ignorar este correo.</p>
-            """
+            html = render_template(
+            'email/reestablecer_cuenta.html',
+            usuario=usuario,
+            reset_url=reset_url,
+            current_year=datetime.now().year
+                )
             send_email("Recuperación de contraseña", [email], html)
             flash('Revisa tu correo para continuar con la recuperación.', 'info')
         else:
@@ -125,7 +140,7 @@ def recuperar_contraseña():
 
     return render_template('recuperar.html')
 
-# Reestablecer contraseña
+# ✅ Reestablecer contraseña con validación
 @auth_bp.route('/reestablecer/<token>', methods=['GET', 'POST'])
 def reestablecer_contraseña(token):
     usuario = ModeloUsuario.validar_token(token)
@@ -135,6 +150,12 @@ def reestablecer_contraseña(token):
 
     if request.method == 'POST':
         nueva_contraseña = request.form['password']
+
+        error = validar_contraseña(nueva_contraseña)
+        if error:
+            flash(error, 'danger')
+            return redirect(url_for('auth.reestablecer_contraseña', token=token))
+
         ModeloUsuario.actualizar_contraseña(usuario.email, nueva_contraseña)
         flash('Contraseña actualizada. Ya puedes iniciar sesión.', 'success')
         return redirect(url_for('auth.login'))

@@ -9,9 +9,12 @@
       <form method="POST">
         <input type="hidden" name="token" value="{{ token }}">
         <div class="mb-3">
-          <label for="password" class="form-label">Nueva contraseña</label>
-          <input type="password" class="form-control" id="password" name="password" required>
-        </div>
+          <label>Nueva contraseña</label>
+          <input type="password" name="password" class="form-control" required>
+          <small class="text-muted">
+            La contraseña debe tener mínimo 8 caracteres, al menos una mayúscula, una minúscula y un número.
+          </small>
+        </div>        
         <div class="mb-3">
           <label for="confirm_password" class="form-label">Confirmar contraseña</label>
           <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>

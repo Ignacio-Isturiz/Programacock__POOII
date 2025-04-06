@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Reestablecer contraseña</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 600px;
+      margin: 40px auto;
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 25px;
+      margin-top: 20px;
+      background: linear-gradient(135deg, #28a745, #2ecc71);
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    .footer {
+      margin-top: 40px;
+      font-size: 0.9em;
+      color: #777;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Hola, {{ usuario.username }}</h2>
+    <p>Recibimos una solicitud para reestablecer tu contraseña. Si fuiste tú, haz clic en el siguiente botón para crear una nueva contraseña segura:</p>
+    
+    <a href="{{ reset_url }}" class="btn">Restablecer contraseña</a>
+
+    <p>Este enlace es válido solo por un tiempo limitado. Si no solicitaste este cambio, podés ignorar este correo y tu contraseña seguirá siendo la misma.</p>
+
+    <div class="footer">
+      © {{ current_year }} Tu Aplicación. Todos los derechos reservados.
+    </div>
+  </div>
+</body>
+</html>
