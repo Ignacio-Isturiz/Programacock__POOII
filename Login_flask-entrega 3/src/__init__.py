@@ -21,10 +21,10 @@ def create_app():
     app.config['MAIL_USE_TLS'] = True
     app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
     app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
-    app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_USERNAME')  # Usa el mismo correo
+    app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_USERNAME')
 
     db.init_app(app)
-    mail.init_app(app)  # ← ¡FUNDAMENTAL!
+    mail.init_app(app)
 
     # Registrar blueprints
     from src.routes.auth import auth_bp
@@ -34,5 +34,13 @@ def create_app():
     @app.route('/')
     def index():
         return redirect(url_for('auth.login'))
+
+    # 👇 Bloque para evitar que se cacheen páginas protegidas
+    @app.after_request
+    def evitar_cache(response):
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+        return response
 
     return app
