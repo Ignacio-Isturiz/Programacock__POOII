@@ -1,16 +1,7 @@
-import psycopg2
-from psycopg2.extras import RealDictCursor
+from sqlalchemy import create_engine, text
 from config import Config
-from urllib.parse import urlparse
+
+engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
 
 def get_connection():
-    url = urlparse(Config.SQLALCHEMY_DATABASE_URI)
-
-    return psycopg2.connect(
-        dbname=url.path[1:],  
-        user=url.username,
-        password=url.password,
-        host=url.hostname,
-        port=url.port,
-        cursor_factory=RealDictCursor
-    )
+    return engine.connect()
